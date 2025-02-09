@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import Header from './Header';
 
 // Declare LayoutProps to ensure TypeScript knows about children
