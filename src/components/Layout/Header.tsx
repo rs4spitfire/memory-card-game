@@ -5,7 +5,7 @@ const Header: React.FC = () =>{
     return(          
           <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6">My App</Typography>
+            <Typography variant="h6">Spring 2025 User Interface Desgn/Dev (SWE-632-DL1, SWE-632-004)</Typography>
           </Toolbar>
         </AppBar>);
 };
