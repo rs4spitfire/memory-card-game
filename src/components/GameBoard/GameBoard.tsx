@@ -23,6 +23,7 @@ const GameBoard: React.FC = () => {
         boxShadow: 3, // Adds shadow to make it stand out
         borderRadius: 2, // Rounded corners
         overflow: 'hidden', // Prevent overflow of cards outside the GameBoard
+        
       }}
     >
       {cards.map((card, index) => (
