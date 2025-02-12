@@ -12,7 +12,7 @@ const Home: React.FC = () => {
 
   const handlePlay = () => {
     if (player1.trim() && player2.trim()) {
-      navigate('/game');
+      navigate('/game', {state: {player1,player2}});
     }else {
     // If not, show the error messages
         setError({
