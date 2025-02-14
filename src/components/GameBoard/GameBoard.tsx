@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Button } from '@mui/material';
 import MemoryCard from '../MemoryCard/MemoryCard';
 
 const GameBoard: React.FC = () => {
-  const cards = [
+  const cards = useMemo(()=> [
     'Card 1', 'Card 2', 'Card 2',
     'Card 6', 'Card 1', 'Card 6',
     'Card 7', 'Card 7', 'Card 9',
     'Card 9', 'Card 10', 'Card 10'
-  ];
+  ],[]);
 
   const location = useLocation();
   const { player1, player2 } = location.state || {};
@@ -54,7 +54,7 @@ const GameBoard: React.FC = () => {
         setFlippedIndices([]);
       }
     }
-  }, [flippedIndices, cards]);
+  }, [flippedIndices, flippedCards, cards]);
 
   // Reset game
   const resetGame = () => {
