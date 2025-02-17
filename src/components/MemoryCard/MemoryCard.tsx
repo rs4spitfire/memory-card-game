@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import { Star } from '@mui/icons-material'; // MUI Star Icon
 
 interface MemoryCardProps {
   cardLabel: string;
+  flipped: boolean; // Whether the card is flipped or not
+  onFlip: () => void; // Function to handle the card flip
 }
 
-const MemoryCard: React.FC<MemoryCardProps> = ({ cardLabel }) => {
-  const [flipped, setFlipped] = useState(false); // State to track card flip
-
-  // Toggle flip when the card is clicked
-  const handleCardClick = () => {
-    setFlipped(!flipped);
-  };
-
+const MemoryCard: React.FC<MemoryCardProps> = ({ cardLabel, flipped, onFlip }) => {
   return (
     <Card
       sx={{
@@ -29,7 +24,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ cardLabel }) => {
         backgroundColor: flipped ? 'white' : 'blue', // Conditional background color
         transition: 'background-color 0.3s ease', // Smooth background color transition
       }}
-      onClick={handleCardClick}
+      onClick={onFlip} // Trigger onFlip when the card is clicked
     >
       <CardContent
         sx={{
