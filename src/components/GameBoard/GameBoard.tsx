@@ -10,6 +10,9 @@ const GameBoard: React.FC = () => {
     'Card 7', 'Card 7', 'Card 9',
     'Card 9', 'Card 10', 'Card 10'
   ],[]);
+  const [player1Score, setPlayer1Score] = useState(0);
+  const [player2Score, setPlayer2Score] = useState(0);
+  const [currentPlayer, setCurrentPlayer] = useState(1); // Player 1 starts
 
   const location = useLocation();
   const { player1, player2 } = location.state || {};
@@ -40,18 +43,40 @@ const GameBoard: React.FC = () => {
     if (flippedIndices.length === 2) {
       const [firstIndex, secondIndex] = flippedIndices;
 
+    //   if (cards[firstIndex] !== cards[secondIndex]) {
+    //     // Cards don't match, reset them after a 0.5 second delay
+    //     setTimeout(() => {
+    //       const resetFlippedCards = [...flippedCards];
+    //       resetFlippedCards[firstIndex] = false;
+    //       resetFlippedCards[secondIndex] = false;
+    //       setFlippedCards(resetFlippedCards);
+    //       setFlippedIndices([]); // Clear the flipped indices
+    //     }, 500); // 500ms delay
+    //   } else {
+    //     // Cards match, just clear the flippedIndices
+    //     setFlippedIndices([]);
+    //   }
+    // }
       if (cards[firstIndex] !== cards[secondIndex]) {
-        // Cards don't match, reset them after a 0.5 second delay
+        // No match: Reset flipped cards after 0.5s
         setTimeout(() => {
           const resetFlippedCards = [...flippedCards];
           resetFlippedCards[firstIndex] = false;
           resetFlippedCards[secondIndex] = false;
           setFlippedCards(resetFlippedCards);
           setFlippedIndices([]); // Clear the flipped indices
-        }, 500); // 500ms delay
+          setCurrentPlayer(currentPlayer === 1 ? 2 : 1); // Switch player turn
+        }, 500);
       } else {
-        // Cards match, just clear the flippedIndices
-        setFlippedIndices([]);
+        // Cards match: Award 10 points
+        if (currentPlayer === 1) {
+          setPlayer1Score(prev => prev + 10);
+        } else {
+          setPlayer2Score(prev => prev + 10);
+        }
+      
+        setFlippedIndices([]); // Clear flippedIndices
+        setCurrentPlayer(currentPlayer === 1 ? 2 : 1); // Switch player turn
       }
     }
   }, [flippedIndices, flippedCards, cards]);
@@ -60,6 +85,9 @@ const GameBoard: React.FC = () => {
   const resetGame = () => {
     setFlippedCards(new Array(cards.length).fill(false)); // Reset all cards to not flipped
     setFlippedIndices([]); // Clear flipped indices
+    setPlayer1Score(0); // Reset Player 1 Score
+    setPlayer2Score(0); // Reset Player 2 Score
+    setCurrentPlayer(1); // Player 1 starts again
   };
 
   const navigateToHome = () => {
@@ -69,6 +97,7 @@ const GameBoard: React.FC = () => {
   return (
     <div>
       {/* Player Names Container */}
+      
       <Box
         sx={{
           width: '300px',
@@ -79,31 +108,20 @@ const GameBoard: React.FC = () => {
           marginBottom: '20px',
         }}
       >
-        {/* Player 1 Name */}
-        <Typography
-          variant="h6"
-          sx={{
-            //fontFamily: "'RebellionSquad'", // Consistent with the gameboard
-            color: '#333',
-            fontWeight: 'bold',
-            marginBottom: '10px', // Space between player names
-          }}
-        >
-          Player 1: {player1}
+        {/* Player 1 */}
+        <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
+          Player 1: {player1} (Score: {player1Score})
         </Typography>
-
-        {/* Player 2 Name */}
-        <Typography
-          variant="h6"
-          sx={{
-            //fontFamily: "'RebellionSquad'", 
-            color: '#333',
-            fontWeight: 'bold',
-          }}
-        >
-          Player 2: {player2}
+        {/* Player 2 */}
+        <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
+          Player 2: {player2} (Score: {player2Score})
+        </Typography>
+        {/* Player Turn */}
+        <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 'bold', marginTop: '10px' }}>
+          Current Turn: Player {currentPlayer}
         </Typography>
       </Box>
+
 
       {/* Game board container */}
       <Box
