@@ -28,9 +28,8 @@ const Home: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        mt: 4,
         //justifyContent: 'center',
-        height: '100vh',
+        minheight: '100vh',
         gap: 3,
       }}
     >
