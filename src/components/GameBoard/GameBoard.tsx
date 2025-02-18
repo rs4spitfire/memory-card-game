@@ -33,14 +33,16 @@ const GameBoard: React.FC = () => {
     const [currentPlayer, setCurrentPlayer] = useState<string>(player1);
     const [flippedCards, setFlippedCards] = useState<boolean[]>(new Array(shuffledCards.length).fill(false));
     const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
+    const [numPairsLeft, setNumPairsLeft] = useState<number>(6);
     const [gameOver, setGameOver] = useState<boolean>(false);
     const [winner, setWinner] = useState<string>('');
-
+    const [playerNumber, setPlayerNumber] = useState(1); // Player 1 starts
 
 
     // Switch the current player
     const switchPlayer = () => {
         setCurrentPlayer((prevPlayer) => (prevPlayer === player1 ? player2 : player1));
+        setPlayerNumber((prevPlayerNumber)=>(prevPlayerNumber===1 ? 2 : 1));
     };
 
     // Function to handle card flip
@@ -72,20 +74,21 @@ const GameBoard: React.FC = () => {
                     switchPlayer(); // Switch turn
                 }, 500); // 500ms delay
             } else {
-                // Cards match, increment the current player's score
-                if (currentPlayer === player1) {
-                    setPlayer1Score((prev) => prev + 1);
+                // Cards match: Award 10 points
+                if (playerNumber === 1) {
+                    setPlayer1Score((prev) => prev + 10);
                 } else {
-                    setPlayer2Score((prev) => prev + 1);
+                    setPlayer2Score((prev) => prev + 10);
                 }
+                setNumPairsLeft((prev)=>prev-1);
                 setFlippedIndices([]); // Clear the flippedIndices
             }
         }
-    }, [flippedIndices, flippedCards, shuffledCards, currentPlayer]);
+    }, [flippedIndices, flippedCards, shuffledCards, currentPlayer,playerNumber]);
 
     useEffect(() => {
         // Check if all pairs are matched (total matches = shuffledCards.length / 2)
-        if (player1Score + player2Score === shuffledCards.length / 2) {
+        if (numPairsLeft===0) {
             let winnerName: string;
             
             if (player1Score > player2Score) {
@@ -108,6 +111,7 @@ const GameBoard: React.FC = () => {
         setFlippedIndices([]); // Clear flipped indices
         setPlayer1Score(0); // Reset player 1's score
         setPlayer2Score(0); // Reset player 2's score
+        setNumPairsLeft(6);
         setCurrentPlayer(player1); // Set current player back to player 1
         setGameOver(false); // Reset the game over state
     };
@@ -129,20 +133,18 @@ const GameBoard: React.FC = () => {
                     marginBottom: '20px',
                 }}
             >
-                {/* Player 1 Name and Score */}
-                <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold', marginBottom: '10px' }}>
-                    Score for {player1}: {player1Score}
-                </Typography>
-
-                {/* Player 2 Name and Score */}
-                <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
-                    Score for {player2}: {player2Score}
-                </Typography>
-
-                {/* Current Player's Turn */}
-                <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold', marginBottom: '10px' }}>
-                    {currentPlayer}'s Turn
-                </Typography>
+              {/* Player 1 */}
+              <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
+                Player 1: {player1} (Score: {player1Score})
+              </Typography>
+              {/* Player 2 */}
+              <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
+                Player 2: {player2} (Score: {player2Score})
+              </Typography>
+              {/* Player Turn */}
+              <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 'bold', marginTop: '10px' }}>
+                Current Turn: {currentPlayer}
+              </Typography>
             </Box>
 
             {/* Game board container */}
