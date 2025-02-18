@@ -1,33 +1,39 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import MemoryCard from '../MemoryCard/MemoryCard';
 import GameOverModal from '../GameOverModal/GameOverModal';
 
 const GameBoard: React.FC = () => {
 
-    const baseCards = [
-        'Card 1', 'Card 1',
-        'Card 2', 'Card 2',
-        'Card 3', 'Card 3',
-        'Card 4', 'Card 4',
-        'Card 5', 'Card 5',
-        'Card 6', 'Card 6'
-    ];
+  const baseCards = useMemo(() => [
+    'Card 1', 'Card 1',
+    'Card 2', 'Card 2',
+    'Card 3', 'Card 3',
+    'Card 4', 'Card 4',
+    'Card 5', 'Card 5',
+    'Card 6', 'Card 6'
+], []);  // Empty dependency array means this won't change unless explicitly needed
 
-    const shuffleCards = (cards: string[]) => {
-        for (let i = cards.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [cards[i], cards[j]] = [cards[j], cards[i]];  // Swap cards
-        }
-        return cards;
-    };
+
+const shuffleCards = (cards: string[]) => {
+    const shuffled = [...cards]; // Create a copy to avoid mutation
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // Swap cards
+    }
+    return shuffled; // Return the new shuffled array
+};
+
 
     const location = useLocation();
     const navigate = useNavigate();
     
     const { player1, player2 } = location.state || {};
-    const shuffledCards = useMemo(() => shuffleCards([...baseCards]), []);
+    
+
+    const [shuffledCards, setShuffledCards] = useState<string[]>(shuffleCards([...baseCards]));
+
 
     const [player1Score, setPlayer1Score] = useState<number>(0);
     const [player2Score, setPlayer2Score] = useState<number>(0);
@@ -40,12 +46,11 @@ const GameBoard: React.FC = () => {
     const [playerNumber, setPlayerNumber] = useState(1); // Player 1 starts
 
 
-    // Switch the current player
-    const switchPlayer = () => {
-        setCurrentPlayer((prevPlayer) => (prevPlayer === player1 ? player2 : player1));
-        setPlayerNumber((prevPlayerNumber)=>(prevPlayerNumber===1 ? 2 : 1));
-    };
-
+    const switchPlayer = useCallback(() => {
+      setCurrentPlayer((prevPlayer) => (prevPlayer === player1 ? player2 : player1));
+      setPlayerNumber((prevPlayerNumber) => (prevPlayerNumber === 1 ? 2 : 1));
+  }, [player1, player2, setCurrentPlayer, setPlayerNumber]);
+  
     // Function to handle card flip
     const handleCardFlip = (index: number) => {
         if (flippedIndices.length === 2) return; // Don't flip if 2 cards are already flipped
@@ -85,7 +90,7 @@ const GameBoard: React.FC = () => {
                 setFlippedIndices([]); // Clear the flippedIndices
             }
         }
-    }, [flippedIndices, flippedCards, shuffledCards, currentPlayer,playerNumber]);
+    }, [flippedIndices, flippedCards, shuffledCards, currentPlayer,playerNumber, numPairsLeft,switchPlayer]);
 
     useEffect(() => {
         // Check if all pairs are matched (total matches = shuffledCards.length / 2)
@@ -103,19 +108,27 @@ const GameBoard: React.FC = () => {
             setWinner(winnerName);  // Set the winner or tie
             setGameOver(true); // Set the game as over
         }
-    }, [player1Score, player2Score, shuffledCards.length, player1, player2]);
+    }, [player1Score, player2Score, shuffledCards.length, player1, player2,numPairsLeft]);
     
 
     // Reset game (reset cards, scores, and current player)
     const resetGame = () => {
-        setFlippedCards(new Array(shuffledCards.length).fill(false)); // Reset all cards to not flipped
-        setFlippedIndices([]); // Clear flipped indices
-        setPlayer1Score(0); // Reset player 1's score
-        setPlayer2Score(0); // Reset player 2's score
-        setNumPairsLeft(6);
-        setCurrentPlayer(player1); // Set current player back to player 1
-        setGameOver(false); // Reset the game over state
-    };
+      // Shuffle the cards again
+      const shuffled = shuffleCards([...baseCards]);
+  
+      // Update the state with the new shuffled cards
+      setFlippedCards(new Array(shuffled.length).fill(false)); // Reset all cards to not flipped
+      setFlippedIndices([]); // Clear flipped indices
+      setPlayer1Score(0); // Reset player 1's score
+      setPlayer2Score(0); // Reset player 2's score
+      setNumPairsLeft(6);
+      setCurrentPlayer(player1); // Set current player back to player 1
+      setGameOver(false); // Reset the game over state
+  
+      // Update the shuffled cards state
+      setShuffledCards(shuffled); // Ensure new shuffled cards are applied
+  };
+  
 
     const navigateToHome = () => {
         navigate('/'); // Navigates to the root URL ("/")
