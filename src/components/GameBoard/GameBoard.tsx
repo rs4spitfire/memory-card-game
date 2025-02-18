@@ -5,6 +5,7 @@ import MemoryCard from '../MemoryCard/MemoryCard';
 import GameOverModal from '../GameOverModal/GameOverModal';
 
 const GameBoard: React.FC = () => {
+
     const baseCards = [
         'Card 1', 'Card 1',
         'Card 2', 'Card 2',
@@ -189,6 +190,7 @@ const GameBoard: React.FC = () => {
                 winner={winner}
                 onPlayAgain={resetGame}
                 onNewPlayers={navigateToHome}
+
             />
         </div>
     );
