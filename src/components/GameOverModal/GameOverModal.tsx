@@ -10,28 +10,46 @@ interface GameOverModalProps {
 
 const GameOverModal: React.FC<GameOverModalProps> = ({ open, winner, onPlayAgain, onNewPlayers }) => {
   return (
-    <Dialog open={open} onClose={onNewPlayers} PaperProps={{
+    <Dialog
+      open={open}
+      onClose={onNewPlayers}
+      PaperProps={{
         sx: {
-          boxShadow: 6,  // Shadow effect for the whole dialog box
-          borderRadius: '8px',  // Optional: rounded corners
-        }
-      }}>
-      <DialogTitle>Game Over</DialogTitle>
+          boxShadow: 6,  // Strong shadow for emphasis
+          borderRadius: '12px',  // Rounded corners for a modern look
+          padding: 3,  // Optional: adds padding inside the modal
+        },
+      }}
+    >
+      <DialogTitle sx={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem' }}>
+        Game Over
+      </DialogTitle>
       <DialogContent>
-        <Box>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+        <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: winner === 'Tie' ? 'orange' : 'green' }}>
             {winner === 'Tie' ? "It's a Tie!" : `${winner} Wins!`}
           </Typography>
-          <Typography variant="body1" sx={{ textAlign: 'center' }}>
-            {winner === 'Tie' ? "" : `Congratulations to ${winner}!`}
-          </Typography>
+          {winner !== 'Tie' && (
+            <Typography variant="body1" sx={{ marginTop: 1 }}>
+              Click one of the options below to play again.
+            </Typography>
+          )}
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onPlayAgain} color="primary">
+      <DialogActions sx={{ justifyContent: 'center' }}>
+        <Button
+          onClick={onPlayAgain}
+          color="primary"
+          variant="contained"
+          sx={{ marginRight: 2 }}
+        >
           Play Again
         </Button>
-        <Button onClick={onNewPlayers} color="secondary">
+        <Button
+          onClick={onNewPlayers}
+          color="secondary"
+          variant="contained"
+        >
           New Players
         </Button>
       </DialogActions>
