@@ -1,212 +1,251 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import MemoryCard from '../MemoryCard/MemoryCard';
 import GameOverModal from '../GameOverModal/GameOverModal';
+import ConfirmationModal from '../ConfirmationModal/ConfirmationModal';
+import ResetMessageModal from '../ResetMessageModal/ResetMessageModal';
+import RulesModal from '../RulesModal/RulesModal';
+import PlayerCard from '../PlayerCard/PlayerCard';
 
 const GameBoard: React.FC = () => {
+  const location = useLocation();
+  const { difficulty, player1, player2 } = location.state || {};
+  const navigate = useNavigate();
 
-  const baseCards = useMemo(() => [
-    'Card 1', 'Card 1',
-    'Card 2', 'Card 2',
-    'Card 3', 'Card 3',
-    'Card 4', 'Card 4',
-    'Card 5', 'Card 5',
-    'Card 6', 'Card 6'
-], []);  // Empty dependency array means this won't change unless explicitly needed
-
-
-const shuffleCards = (cards: string[]) => {
-    const shuffled = [...cards]; // Create a copy to avoid mutation
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // Swap cards
+  useEffect(() => {
+    if (!player1 || !player2 || !difficulty) {
+      navigate('/', { replace: true });
     }
-    return shuffled; // Return the new shuffled array
-};
+  }, [player1, player2, difficulty, navigate]);
 
+  const baseCards = useMemo(() => {
+    switch (difficulty) {
+      case 'medium':
+        return [
+          'pokemon_1', 'pokemon_1', 'pokemon_2', 'pokemon_2', 'pokemon_3', 'pokemon_3', 
+          'pokemon_4', 'pokemon_4', 'pokemon_5', 'pokemon_5', 'pokemon_6', 'pokemon_6', 
+          'pokemon_7', 'pokemon_7', 'pokemon_8', 'pokemon_8'
+        ];
+      case 'hard':
+        return [
+          'pokemon_1', 'pokemon_1', 'pokemon_2', 'pokemon_2', 'pokemon_3', 'pokemon_3',
+          'pokemon_4', 'pokemon_4', 'pokemon_5', 'pokemon_5', 'pokemon_6', 'pokemon_6', 
+          'pokemon_7', 'pokemon_7', 'pokemon_8', 'pokemon_8', 'pokemon_9', 'pokemon_9', 
+          'pokemon_10', 'pokemon_10'
+        ];
+      default:
+        return [
+          'pokemon_1', 'pokemon_1', 'pokemon_2', 'pokemon_2', 'pokemon_3', 'pokemon_3', 
+          'pokemon_4', 'pokemon_4', 'pokemon_5', 'pokemon_5', 'pokemon_6', 'pokemon_6'
+        ];
+    }
+  }, [difficulty]);
 
-    const location = useLocation();
-    const navigate = useNavigate();
-    
-    const { player1, player2 } = location.state || {};
-    
-
-    const [shuffledCards, setShuffledCards] = useState<string[]>(shuffleCards([...baseCards]));
-
-
-    const [player1Score, setPlayer1Score] = useState<number>(0);
-    const [player2Score, setPlayer2Score] = useState<number>(0);
-    const [currentPlayer, setCurrentPlayer] = useState<string>(player1);
-    const [flippedCards, setFlippedCards] = useState<boolean[]>(new Array(shuffledCards.length).fill(false));
-    const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
-    const [numPairsLeft, setNumPairsLeft] = useState<number>(6);
-    const [gameOver, setGameOver] = useState<boolean>(false);
-    const [winner, setWinner] = useState<string>('');
-    const [playerNumber, setPlayerNumber] = useState(1); // Player 1 starts
-
-
-    const switchPlayer = useCallback(() => {
-      setCurrentPlayer((prevPlayer) => (prevPlayer === player1 ? player2 : player1));
-      setPlayerNumber((prevPlayerNumber) => (prevPlayerNumber === 1 ? 2 : 1));
-  }, [player1, player2, setCurrentPlayer, setPlayerNumber]);
-  
-    // Function to handle card flip
-    const handleCardFlip = (index: number) => {
-        if (flippedIndices.length === 2) return; // Don't flip if 2 cards are already flipped
-
-        // Update flipped status for the specific card
-        const newFlippedCards = [...flippedCards];
-        newFlippedCards[index] = !newFlippedCards[index];
-        setFlippedCards(newFlippedCards);
-
-        // Update flippedIndices to track the indices of flipped cards
-        setFlippedIndices(prev => [...prev, index]);
-    };
-
-    // Effect to handle card matching and resetting
-    useEffect(() => {
-        if (flippedIndices.length === 2) {
-            const [firstIndex, secondIndex] = flippedIndices;
-
-            if (shuffledCards[firstIndex] !== shuffledCards[secondIndex]) {
-                // Cards don't match, reset them after a 0.5 second delay
-                setTimeout(() => {
-                    const resetFlippedCards = [...flippedCards];
-                    resetFlippedCards[firstIndex] = false;
-                    resetFlippedCards[secondIndex] = false;
-                    setFlippedCards(resetFlippedCards);
-                    setFlippedIndices([]); // Clear the flipped indices
-                    switchPlayer(); // Switch turn
-                }, 500); // 500ms delay
-            } else {
-                // Cards match: Award 10 points
-                if (playerNumber === 1) {
-                    setPlayer1Score((prev) => prev + 10);
-                } else {
-                    setPlayer2Score((prev) => prev + 10);
-                }
-                setNumPairsLeft((prev)=>prev-1);
-                setFlippedIndices([]); // Clear the flippedIndices
-            }
-        }
-    }, [flippedIndices, flippedCards, shuffledCards, currentPlayer,playerNumber, numPairsLeft,switchPlayer]);
-
-    useEffect(() => {
-        // Check if all pairs are matched (total matches = shuffledCards.length / 2)
-        if (numPairsLeft===0) {
-            let winnerName: string;
-            
-            if (player1Score > player2Score) {
-                winnerName = player1;
-            } else if (player2Score > player1Score) {
-                winnerName = player2;
-            } else {
-                winnerName = 'Tie'; // If scores are equal, it's a tie
-            }
-    
-            setWinner(winnerName);  // Set the winner or tie
-            setGameOver(true); // Set the game as over
-        }
-    }, [player1Score, player2Score, shuffledCards.length, player1, player2,numPairsLeft]);
-    
-
-    // Reset game (reset cards, scores, and current player)
-    const resetGame = () => {
-      // Shuffle the cards again
-      const shuffled = shuffleCards([...baseCards]);
-  
-      // Update the state with the new shuffled cards
-      setFlippedCards(new Array(shuffled.length).fill(false)); // Reset all cards to not flipped
-      setFlippedIndices([]); // Clear flipped indices
-      setPlayer1Score(0); // Reset player 1's score
-      setPlayer2Score(0); // Reset player 2's score
-      setNumPairsLeft(6);
-      setCurrentPlayer(player1); // Set current player back to player 1
-      setGameOver(false); // Reset the game over state
-  
-      // Update the shuffled cards state
-      setShuffledCards(shuffled); // Ensure new shuffled cards are applied
+  const shuffleCards = (cards: string[]) => {
+    const shuffled = [...cards];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   };
-  
 
-    const navigateToHome = () => {
-        navigate('/'); // Navigates to the root URL ("/")
-    };
+  const [shuffledCards, setShuffledCards] = useState<string[]>(shuffleCards([...baseCards]));
+  const [player1Score, setPlayer1Score] = useState<number>(0);
+  const [player2Score, setPlayer2Score] = useState<number>(0);
+  const [currentPlayer, setCurrentPlayer] = useState<string>(player1);
+  const [flippedCards, setFlippedCards] = useState<boolean[]>(new Array(shuffledCards.length).fill(false));
+  const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
+  const [numPairsLeft, setNumPairsLeft] = useState<number>(shuffledCards.length / 2);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [winner, setWinner] = useState<string>('');
+  const [playerNumber, setPlayerNumber] = useState(1);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showResetMessage, setShowResetMessage] = useState(false);
+  const [openRules, setOpenRules] = useState(false);
 
-    return (
-        <div>
-            {/* Player Names and Scores Container */}
-            <Box
-                sx={{
-                    width: '300px',
-                    padding: '10px 20px',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '8px',
-                    boxShadow: 3,
-                    marginBottom: '20px',
-                }}
-            >
-              {/* Player 1 */}
-              <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
-                Player 1: {player1} (Score: {player1Score})
-              </Typography>
-              {/* Player 2 */}
-              <Typography variant="h6" sx={{ color: '#333', fontWeight: 'bold' }}>
-                Player 2: {player2} (Score: {player2Score})
-              </Typography>
-              {/* Player Turn */}
-              <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 'bold', marginTop: '10px' }}>
-                Current Turn: {currentPlayer}
-              </Typography>
+  const handlePlayAgainClick = () => {
+    setShowConfirmation(true);
+  };
+
+ 
+
+  const handleCloseConfirmation = () => {
+    setShowConfirmation(false);
+  };
+
+  const handleOpenRules = () => {
+    setOpenRules(true);
+  };
+
+  const handleCloseRules = () => {
+    setOpenRules(false);
+  };
+
+  const handleConfirmReset = () => {
+    setShowConfirmation(false); // Close the modal
+    resetGame(); // Reset the game logic
+    setShowResetMessage(true); // Show the "Game has been reset" message
+    setTimeout(() => {
+      setShowResetMessage(false); // Hide after 500 ms
+    }, 1000);
+  };
+
+  const switchPlayer = useCallback(() => {
+    setCurrentPlayer((prevPlayer) => (prevPlayer === player1 ? player2 : player1));
+    setPlayerNumber((prevPlayerNumber) => (prevPlayerNumber === 1 ? 2 : 1));
+  }, [player1, player2]);
+
+  const handleCardFlip = (index: number) => {
+    if (flippedIndices.length === 2) return;
+
+    const newFlippedCards = [...flippedCards];
+    newFlippedCards[index] = !newFlippedCards[index];
+    setFlippedCards(newFlippedCards);
+
+    setFlippedIndices((prev) => [...prev, index]);
+  };
+
+  useEffect(() => {
+    if (flippedIndices.length === 2) {
+      const [firstIndex, secondIndex] = flippedIndices;
+
+      if (shuffledCards[firstIndex] !== shuffledCards[secondIndex]) {
+        setTimeout(() => {
+          const resetFlippedCards = [...flippedCards];
+          resetFlippedCards[firstIndex] = false;
+          resetFlippedCards[secondIndex] = false;
+          setFlippedCards(resetFlippedCards);
+          setFlippedIndices([]);
+          switchPlayer();
+        }, 500);
+      } else {
+        if (playerNumber === 1) {
+          setPlayer1Score((prev) => prev + 10);
+        } else {
+          setPlayer2Score((prev) => prev + 10);
+        }
+        setNumPairsLeft((prev) => prev - 1);
+        setFlippedIndices([]);
+      }
+    }
+  }, [flippedIndices, flippedCards, shuffledCards, currentPlayer, playerNumber, numPairsLeft, switchPlayer]);
+
+  useEffect(() => {
+    if (numPairsLeft === 0) {
+      let winnerName: string;
+      if (player1Score > player2Score) {
+        winnerName = player1;
+      } else if (player2Score > player1Score) {
+        winnerName = player2;
+      } else {
+        winnerName = 'Tie';
+      }
+      setWinner(winnerName);
+      setGameOver(true);
+    }
+  }, [player1Score, player2Score, shuffledCards.length, player1, player2, numPairsLeft]);
+
+  const resetGame = () => {
+    const shuffled = shuffleCards([...baseCards]);
+    setFlippedCards(new Array(shuffled.length).fill(false));
+    setFlippedIndices([]);
+    setPlayer1Score(0);
+    setPlayer2Score(0);
+    setNumPairsLeft(shuffled.length / 2);
+    setCurrentPlayer(player1);
+    setGameOver(false);
+    setShuffledCards(shuffled);
+  };
+
+  const navigateToHome = () => {
+    navigate('/updated');
+  };
+
+  const getCardSize = () => {
+    switch (difficulty) {
+      case 'medium':
+        return '90px';
+      case 'hard':
+        return '80px';
+      default:
+        return '100px';
+    }
+  };
+
+  return (
+    <div>
+        <Box sx={{ display: 'flex', gap: 2, marginTop: 2, marginLeft: 2 }}>
+        <Button onClick={navigateToHome} variant="contained" color="primary">
+            Change Players/Difficulty
+          </Button>
+          <Button onClick={handlePlayAgainClick} variant="contained" color="primary">
+            Play Again
+          </Button>
+
+          <Button 
+          variant="contained"
+          color="primary" 
+          onClick={handleOpenRules} 
+          sx={{ minWidth: 120 }}
+        >
+          Rules
+        </Button>
+        </Box>
+      <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, padding: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <PlayerCard name={player1} score={player1Score} isActive={currentPlayer === player1} />
+          <PlayerCard name={player2} score={player2Score} isActive={currentPlayer === player2} />
+        </Box>
+
+        <Box
+          sx={{
+            width: '700px',
+            height: '500px',
+            display: 'grid',
+            gridTemplateColumns: `repeat(${difficulty === 'easy' ? 4 : difficulty === 'medium' ? 4 : 5}, 1fr)`,
+            gridTemplateRows: `repeat(${difficulty === 'easy' ? 3 : difficulty === 'medium' ? 4 : 4}, 1fr)`,
+            gap: 2,
+            backgroundColor: '#f5f5f5',
+            boxShadow: 3,
+            borderRadius: 2,
+            overflow: 'hidden',
+            position: 'relative', // Make sure the gameboard has relative positioning
+          }}
+        >
+          {shuffledCards.map((card, index) => (
+            <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <MemoryCard
+                cardLabel={card}
+                flipped={flippedCards[index]}
+                onFlip={() => handleCardFlip(index)}
+                cardSize={getCardSize()}
+                visible
+              />
             </Box>
+          ))}
+        </Box>
 
-            {/* Game board container */}
-            <Box
-                sx={{
-                    width: '700px',
-                    height: '500px',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gridTemplateRows: 'repeat(3, 1fr)',
-                    gap: 2,
-                    backgroundColor: '#f5f5f5',
-                    boxShadow: 3,
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                }}
-            >
-                {shuffledCards.map((card, index) => (
-                    <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <MemoryCard
-                            cardLabel={card}
-                            flipped={flippedCards[index]}
-                            onFlip={() => handleCardFlip(index)}
-                        />
-                    </Box>
-                ))}
-            </Box>
+        
+      </Box>
 
-            {/* Buttons container */}
-            <Box sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
-                <Button onClick={resetGame} variant="contained" color="primary">
-                    Play Again
-                </Button>
+      <GameOverModal open={gameOver} winner={winner} onPlayAgain={resetGame} onNewPlayers={navigateToHome} />
 
-                <Button onClick={navigateToHome} variant="contained" color="secondary">
-                    New Players
-                </Button>
-            </Box>
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        open={showConfirmation}
+        onClose={handleCloseConfirmation}
+        onConfirm={handleConfirmReset}
+        message="Are you sure you want to start over?"
+      />
 
-            <GameOverModal
-                open={gameOver}
-                winner={winner}
-                onPlayAgain={resetGame}
-                onNewPlayers={navigateToHome}
+    <ResetMessageModal open={showResetMessage} message="Game has been reset" onClose={() => setShowResetMessage(false)} />
+    <RulesModal open={openRules} onClose={handleCloseRules} />
+    </div>
 
-            />
-        </div>
-    );
+    
+  );
 };
 
 export default GameBoard;

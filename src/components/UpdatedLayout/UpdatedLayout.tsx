@@ -11,7 +11,7 @@ const UpdatedLayout: React.FC<UpdatedLayoutProps> = ({ children }) => {
   const location = useLocation();
 
   // Apply background only if route includes '/updated/game'
-  const isUpdatedGameRoute = location.pathname.includes('/updated/game');
+  const isUpdatedGameRoute = location.pathname.includes('/game');
 
   return (
     <Box
