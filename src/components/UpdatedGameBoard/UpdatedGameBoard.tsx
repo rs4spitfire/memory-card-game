@@ -6,7 +6,7 @@ import GameOverModal from '../GameOverModal/GameOverModal';
 import ConfirmationModal from '../ConfirmationModal/ConfirmationModal';
 import ResetMessageModal from '../ResetMessageModal/ResetMessageModal';
 import RulesModal from '../RulesModal/RulesModal';
-import PlayerCard from '../PlayerCard/PlayerCard';
+import UpdatedPlayerCard from '../UpdatedPlayerCard/UpdatedPlayerCard';
 
 const UpdatedGameBoard: React.FC = () => {
   const location = useLocation();
@@ -15,7 +15,7 @@ const UpdatedGameBoard: React.FC = () => {
 
   useEffect(() => {
     if (!player1 || !player2 || !difficulty) {
-      navigate('/updated', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [player1, player2, difficulty, navigate]);
 
@@ -148,7 +148,7 @@ const UpdatedGameBoard: React.FC = () => {
   };
 
   const navigateToHome = () => {
-    navigate('/updated');
+    navigate('/');
   };
 
   const getCardSize = () => {
@@ -166,8 +166,8 @@ const UpdatedGameBoard: React.FC = () => {
     <div>
       <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, padding: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <PlayerCard name={player1} score={player1Score} isActive={currentPlayer === player1} />
-          <PlayerCard name={player2} score={player2Score} isActive={currentPlayer === player2} />
+          <UpdatedPlayerCard name={player1} score={player1Score} isActive={currentPlayer === player1} />
+          <UpdatedPlayerCard name={player2} score={player2Score} isActive={currentPlayer === player2} />
         </Box>
 
         <Box

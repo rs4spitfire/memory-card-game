@@ -1,45 +1,57 @@
-import React from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
-import { Star } from '@mui/icons-material'; // MUI Star Icon
+import React, { useEffect } from 'react';
+import { Card, CardContent } from '@mui/material';
+import { Star } from '@mui/icons-material';
 
 interface MemoryCardProps {
   cardLabel: string;
-  flipped: boolean; // Whether the card is flipped or not
-  onFlip: () => void; // Function to handle the card flip
+  flipped: boolean;
+  onFlip: () => void;
+  cardSize: string;
+  visible: boolean;
 }
 
-const MemoryCard: React.FC<MemoryCardProps> = ({ cardLabel, flipped, onFlip }) => {
+const MemoryCard: React.FC<MemoryCardProps> = ({ cardLabel, flipped, onFlip, cardSize, visible }) => {
+  const handleClick = () => {
+    setTimeout(() => {
+      onFlip(); // Delay the visual flip
+    }, 200); // 200ms delay before flipping
+  };
+
+  useEffect(() => {
+    const flipSound = new Audio('/Media/flipcard-91468.mp3');
+    flipSound.play().catch((error) => console.error('Error playing sound:', error));
+  }, [flipped]); // Runs when 'flipped' changes
+
   return (
     <Card
       sx={{
-        width: 120, // Fixed width to make it square
-        height: 120, // Fixed height to make it square
-        borderRadius: 2, // Rounded corners
+        width: cardSize,
+        height: cardSize,
+        borderRadius: 2,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        boxShadow: 3, // Optional, adds shadow for better visual depth
-        color: 'white', // White text color
-        cursor: 'pointer',
-        backgroundColor: flipped ? 'white' : 'blue', // Conditional background color
-        transition: 'background-color 0.3s ease', // Smooth background color transition
+        boxShadow: visible ? 3 : 0,
+        color: 'white',
+        cursor: visible ? "pointer" : "default",
+        backgroundColor: visible ? (flipped ? "white" : "blue") : "white",
+        transition: 'background-color 0.3s ease',
       }}
-      onClick={onFlip} // Trigger onFlip when the card is clicked
+      onClick={visible ? handleClick : undefined} // Use the delayed flip function
     >
-      <CardContent
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        {/* Front of the card (star icon) */}
+      {visible && (
+      <CardContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         {!flipped ? (
-          <Star sx={{ fontSize: 40 }} /> // Show Star icon on the front when not flipped
+          <Star sx={{ fontSize: 40 }} />
         ) : (
-          <Typography variant="h6" align="center" color="black">{cardLabel}</Typography> // Show text on the back when flipped
+          <img
+            src={`/Media/Images/${cardLabel}.jfif`} // Use jfif extension
+            alt="card"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         )}
       </CardContent>
+      )}
     </Card>
   );
 };

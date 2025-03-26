@@ -1,33 +1,42 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import Header from './Header';
+import { useLocation } from 'react-router-dom';
 
-// Declare LayoutProps to ensure TypeScript knows about children
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const location = useLocation();
+
+  // Apply background only if route includes '/game'
+  const isUpdatedGameRoute = location.pathname.includes('/updated/game');
+
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      minHeight: '100vh',
-      
-      }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        background: isUpdatedGameRoute
+          ? 'radial-gradient(circle at top left, rgba(128, 0, 128, 0.5) 20%, rgba(211, 211, 211, 0.7) 60%, rgba(169, 169, 169, 0.9) 90%)'
+          : 'none', // No background for other routes
+      }}
+    >
       <Header />
 
-      {/* Main content area */}
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
-          display: 'flex', 
-          justifyContent: 'center',  // Center content horizontally
-          alignItems: 'center',  // Center content vertically 
-        }}>
-        <Box sx={{ mt: 4, width: '1000px', m: 2.5 }}> {/* 20px margin */}
-          {/* Place the child components or content here */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start',
+          padding: 2,
+        }}
+      >
+        <Box sx={{ mt: 4, width: '1000px', m: 2.5 }}>
           {children}
         </Box>
       </Box>
