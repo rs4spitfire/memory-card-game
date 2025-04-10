@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
-import UpdatedMemoryCard from '../UpdatedMemoryCard/UpdatedMemoryCard';
+import MemoryCard from '../MemoryCard/MemoryCard';
 import GameOverModal from '../GameOverModal/GameOverModal';
 import ConfirmationModal from '../ConfirmationModal/ConfirmationModal';
 import ResetMessageModal from '../ResetMessageModal/ResetMessageModal';
 import RulesModal from '../RulesModal/RulesModal';
-import UpdatedPlayerCard from '../UpdatedPlayerCard/UpdatedPlayerCard';
+import PlayerCard from '../PlayerCard/PlayerCard';
+import UpdatedRulesModal from '../UpdatedRulesModal/UpdatedRulesModal';
 
 const UpdatedGameBoard: React.FC = () => {
   const location = useLocation();
@@ -19,14 +20,28 @@ const UpdatedGameBoard: React.FC = () => {
     }
   }, [player1, player2, difficulty, navigate]);
 
+  const [matchedCards, setMatchedCards] = useState<string[]>([]);
+
   const baseCards = useMemo(() => {
     switch (difficulty) {
       case 'medium':
-        return ['Card 1', 'Card 1', 'Card 2', 'Card 2', 'Card 3', 'Card 3', 'Card 4', 'Card 4', 'Card 5', 'Card 5', 'Card 6', 'Card 6', 'Card 7', 'Card 7', 'Card 8', 'Card 8'];
+        return [
+          'pokemon_1', 'pokemon_1', 'pokemon_2', 'pokemon_2', 'pokemon_3', 'pokemon_3', 
+          'pokemon_4', 'pokemon_4', 'pokemon_5', 'pokemon_5', 'pokemon_6', 'pokemon_6', 
+          'pokemon_7', 'pokemon_7', 'pokemon_8', 'pokemon_8'
+        ];
       case 'hard':
-        return ['Card 1', 'Card 1', 'Card 2', 'Card 2', 'Card 3', 'Card 3', 'Card 4', 'Card 4', 'Card 5', 'Card 5', 'Card 6', 'Card 6', 'Card 7', 'Card 7', 'Card 8', 'Card 8', 'Card 9', 'Card 9', 'Card 10', 'Card 10'];
+        return [
+          'pokemon_1', 'pokemon_1', 'pokemon_2', 'pokemon_2', 'pokemon_3', 'pokemon_3',
+          'pokemon_4', 'pokemon_4', 'pokemon_5', 'pokemon_5', 'pokemon_6', 'pokemon_6', 
+          'pokemon_7', 'pokemon_7', 'pokemon_8', 'pokemon_8', 'pokemon_9', 'pokemon_9', 
+          'pokemon_10', 'pokemon_10'
+        ];
       default:
-        return ['Card 1', 'Card 1', 'Card 2', 'Card 2', 'Card 3', 'Card 3', 'Card 4', 'Card 4', 'Card 5', 'Card 5', 'Card 6', 'Card 6'];
+        return [
+          'pokemon_1', 'pokemon_1', 'pokemon_2', 'pokemon_2', 'pokemon_3', 'pokemon_3', 
+          'pokemon_4', 'pokemon_4', 'pokemon_5', 'pokemon_5', 'pokemon_6', 'pokemon_6'
+        ];
     }
   }, [difficulty]);
 
@@ -52,6 +67,9 @@ const UpdatedGameBoard: React.FC = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showResetMessage, setShowResetMessage] = useState(false);
   const [openRules, setOpenRules] = useState(false);
+  const [previousFlippedCard, setPreviousFlippedCard] = useState<number | null>(null);
+  const [lastFlippedIndex, setLastFlippedIndex] = useState<number | null>(null);
+  const [moveCount, setMoveCount] = useState(0);
 
   const handlePlayAgainClick = () => {
     setShowConfirmation(true);
@@ -86,40 +104,48 @@ const UpdatedGameBoard: React.FC = () => {
   }, [player1, player2]);
 
   const handleCardFlip = (index: number) => {
-    if (flippedIndices.length === 2) return;
-
+    // Ignore if already flipped or matched
+    if (flippedCards[index] || flippedIndices.length === 2) return;
+  
     const newFlippedCards = [...flippedCards];
-    newFlippedCards[index] = !newFlippedCards[index];
+    newFlippedCards[index] = true;
+  
     setFlippedCards(newFlippedCards);
-
     setFlippedIndices((prev) => [...prev, index]);
+  
+    if (flippedIndices.length === 0) {
+      setLastFlippedIndex(index); // Save the single flip
+    } else {
+      setLastFlippedIndex(null); // Clear if two cards are now flipped
+    }
   };
 
-  useEffect(() => {
-    if (flippedIndices.length === 2) {
-      const [firstIndex, secondIndex] = flippedIndices;
+useEffect(() => {
+  if (flippedIndices.length === 2) {
+    setMoveCount((prev) => prev + 1);
+    const [firstIndex, secondIndex] = flippedIndices;
 
-      if (shuffledCards[firstIndex] !== shuffledCards[secondIndex]) {
-        setTimeout(() => {
-          const resetFlippedCards = [...flippedCards];
-          resetFlippedCards[firstIndex] = false;
-          resetFlippedCards[secondIndex] = false;
-          setFlippedCards(resetFlippedCards);
-          setFlippedIndices([]);
-          switchPlayer();
-        }, 500);
-      } else {
-        if (playerNumber === 1) {
-          setPlayer1Score((prev) => prev + 10);
-        } else {
-          setPlayer2Score((prev) => prev + 10);
-        }
-        setNumPairsLeft((prev) => prev - 1);
+    if (shuffledCards[firstIndex] !== shuffledCards[secondIndex]) {
+      setTimeout(() => {
+        const resetFlippedCards = [...flippedCards];
+        resetFlippedCards[firstIndex] = false;
+        resetFlippedCards[secondIndex] = false;
+        setFlippedCards(resetFlippedCards);
         setFlippedIndices([]);
+        switchPlayer();
+      }, 500);
+    } else {
+      setMatchedCards((prev) => [...prev, shuffledCards[firstIndex]]);
+      if (playerNumber === 1) {
+        setPlayer1Score((prev) => prev + 10);
+      } else {
+        setPlayer2Score((prev) => prev + 10);
       }
+      setNumPairsLeft((prev) => prev - 1);
+      setFlippedIndices([]);
     }
-  }, [flippedIndices, flippedCards, shuffledCards, currentPlayer, playerNumber, numPairsLeft, switchPlayer]);
-
+  }
+}, [flippedIndices, flippedCards, shuffledCards, currentPlayer, playerNumber, numPairsLeft, switchPlayer]);
   useEffect(() => {
     if (numPairsLeft === 0) {
       let winnerName: string;
@@ -148,7 +174,7 @@ const UpdatedGameBoard: React.FC = () => {
   };
 
   const navigateToHome = () => {
-    navigate('/');
+    navigate('/updated');
   };
 
   const getCardSize = () => {
@@ -164,10 +190,60 @@ const UpdatedGameBoard: React.FC = () => {
 
   return (
     <div>
+        <Box sx={{ display: 'flex', gap: 2, marginTop: 2, marginLeft: 2 }}>
+        <Button onClick={navigateToHome} variant="contained" color="primary">
+            Change Players/Difficulty
+          </Button>
+          <Button onClick={handlePlayAgainClick} variant="contained" color="primary">
+            Play Again
+          </Button>
+
+          <Button 
+          variant="contained"
+          color="primary" 
+          onClick={handleOpenRules} 
+          sx={{ minWidth: 120 }}
+        >
+          Rules
+        </Button>
+        <Button
+  onClick={() => {
+    if (lastFlippedIndex !== null && flippedCards[lastFlippedIndex]) {
+      const newFlippedCards = [...flippedCards];
+      newFlippedCards[lastFlippedIndex] = false;
+      setFlippedCards(newFlippedCards);
+      setFlippedIndices([]);
+      setLastFlippedIndex(null);
+    }
+  }}
+  variant="contained"
+  color="secondary"
+>
+  Undo Flip
+</Button>                     
+        </Box>
       <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, padding: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <UpdatedPlayerCard name={player1} score={player1Score} isActive={currentPlayer === player1} />
-          <UpdatedPlayerCard name={player2} score={player2Score} isActive={currentPlayer === player2} />
+          <PlayerCard name={player1} score={player1Score} isActive={currentPlayer === player1} />
+          <PlayerCard name={player2} score={player2Score} isActive={currentPlayer === player2} />
+          <Box
+  sx={{
+    padding: 2,
+    border: '1px solid #ccc',
+    borderRadius: 2,
+    backgroundColor: '#fff',
+    boxShadow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 1,
+    width: '170px'
+  }}
+>
+  <div><strong>Current Turn:</strong> {currentPlayer}</div>
+  <div><strong>Moves:</strong> {moveCount}</div>
+  <div><strong>Matches Found:</strong> {(shuffledCards.length / 2) - numPairsLeft}</div>
+  <div><strong>Pairs Remaining:</strong> {numPairsLeft}</div>
+</Box>
         </Box>
 
         <Box
@@ -187,32 +263,18 @@ const UpdatedGameBoard: React.FC = () => {
         >
           {shuffledCards.map((card, index) => (
             <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <UpdatedMemoryCard
+              <MemoryCard
                 cardLabel={card}
                 flipped={flippedCards[index]}
                 onFlip={() => handleCardFlip(index)}
                 cardSize={getCardSize()}
+                visible
               />
             </Box>
           ))}
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
-          <Button onClick={handlePlayAgainClick} variant="contained" color="primary">
-            Play Again
-          </Button>
-          <Button onClick={navigateToHome} variant="contained" color="primary">
-            New Players
-          </Button>
-          <Button 
-          variant="contained"
-          color="primary" 
-          onClick={handleOpenRules} 
-          sx={{ minWidth: 120 }}
-        >
-          Rules
-        </Button>
-        </Box>
+        
       </Box>
 
       <GameOverModal open={gameOver} winner={winner} onPlayAgain={resetGame} onNewPlayers={navigateToHome} />
@@ -226,7 +288,7 @@ const UpdatedGameBoard: React.FC = () => {
       />
 
     <ResetMessageModal open={showResetMessage} message="Game has been reset" onClose={() => setShowResetMessage(false)} />
-    <RulesModal open={openRules} onClose={handleCloseRules} />
+    <UpdatedRulesModal open={openRules} onClose={handleCloseRules} />
     </div>
 
     

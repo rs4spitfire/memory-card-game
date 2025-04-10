@@ -160,7 +160,7 @@ const GameBoard: React.FC = () => {
   };
 
   const navigateToHome = () => {
-    navigate('/updated');
+    navigate('/');
   };
 
   const getCardSize = () => {
