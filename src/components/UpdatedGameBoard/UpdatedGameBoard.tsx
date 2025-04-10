@@ -5,7 +5,6 @@ import MemoryCard from '../MemoryCard/MemoryCard';
 import GameOverModal from '../GameOverModal/GameOverModal';
 import ConfirmationModal from '../ConfirmationModal/ConfirmationModal';
 import ResetMessageModal from '../ResetMessageModal/ResetMessageModal';
-import RulesModal from '../RulesModal/RulesModal';
 import PlayerCard from '../PlayerCard/PlayerCard';
 import UpdatedRulesModal from '../UpdatedRulesModal/UpdatedRulesModal';
 
@@ -13,14 +12,14 @@ const UpdatedGameBoard: React.FC = () => {
   const location = useLocation();
   const { difficulty, player1, player2 } = location.state || {};
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     if (!player1 || !player2 || !difficulty) {
       navigate('/', { replace: true });
     }
   }, [player1, player2, difficulty, navigate]);
 
-  const [matchedCards, setMatchedCards] = useState<string[]>([]);
+  const [, setMatchedCards] = useState<string[]>([]);
 
   const baseCards = useMemo(() => {
     switch (difficulty) {
@@ -67,7 +66,7 @@ const UpdatedGameBoard: React.FC = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showResetMessage, setShowResetMessage] = useState(false);
   const [openRules, setOpenRules] = useState(false);
-  const [previousFlippedCard, setPreviousFlippedCard] = useState<number | null>(null);
+  //const [previousFlippedCard, setPreviousFlippedCard] = useState<number | null>(null);
   const [lastFlippedIndex, setLastFlippedIndex] = useState<number | null>(null);
   const [moveCount, setMoveCount] = useState(0);
 

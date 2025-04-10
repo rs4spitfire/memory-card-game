@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { SelectChangeEvent } from '@mui/material';
-import RulesModal from '../RulesModal/RulesModal';
 import UpdatedRulesModal from '../UpdatedRulesModal/UpdatedRulesModal';
 
 const UpdatedHome: React.FC = () => {
