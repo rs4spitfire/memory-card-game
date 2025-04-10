@@ -19,6 +19,8 @@ const GameBoard: React.FC = () => {
     }
   }, [player1, player2, difficulty, navigate]);
 
+  const [matchedCards, setMatchedCards] = useState<string[]>([]);
+
   const baseCards = useMemo(() => {
     switch (difficulty) {
       case 'medium':
@@ -64,6 +66,9 @@ const GameBoard: React.FC = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showResetMessage, setShowResetMessage] = useState(false);
   const [openRules, setOpenRules] = useState(false);
+  const [previousFlippedCard, setPreviousFlippedCard] = useState<number | null>(null);
+  const [lastFlippedIndex, setLastFlippedIndex] = useState<number | null>(null);
+  const [moveCount, setMoveCount] = useState(0);
 
   const handlePlayAgainClick = () => {
     setShowConfirmation(true);
@@ -98,40 +103,48 @@ const GameBoard: React.FC = () => {
   }, [player1, player2]);
 
   const handleCardFlip = (index: number) => {
-    if (flippedIndices.length === 2) return;
-
+    // Ignore if already flipped or matched
+    if (flippedCards[index] || flippedIndices.length === 2) return;
+  
     const newFlippedCards = [...flippedCards];
-    newFlippedCards[index] = !newFlippedCards[index];
+    newFlippedCards[index] = true;
+  
     setFlippedCards(newFlippedCards);
-
     setFlippedIndices((prev) => [...prev, index]);
+  
+    if (flippedIndices.length === 0) {
+      setLastFlippedIndex(index); // Save the single flip
+    } else {
+      setLastFlippedIndex(null); // Clear if two cards are now flipped
+    }
   };
 
-  useEffect(() => {
-    if (flippedIndices.length === 2) {
-      const [firstIndex, secondIndex] = flippedIndices;
+useEffect(() => {
+  if (flippedIndices.length === 2) {
+    setMoveCount((prev) => prev + 1);
+    const [firstIndex, secondIndex] = flippedIndices;
 
-      if (shuffledCards[firstIndex] !== shuffledCards[secondIndex]) {
-        setTimeout(() => {
-          const resetFlippedCards = [...flippedCards];
-          resetFlippedCards[firstIndex] = false;
-          resetFlippedCards[secondIndex] = false;
-          setFlippedCards(resetFlippedCards);
-          setFlippedIndices([]);
-          switchPlayer();
-        }, 500);
-      } else {
-        if (playerNumber === 1) {
-          setPlayer1Score((prev) => prev + 10);
-        } else {
-          setPlayer2Score((prev) => prev + 10);
-        }
-        setNumPairsLeft((prev) => prev - 1);
+    if (shuffledCards[firstIndex] !== shuffledCards[secondIndex]) {
+      setTimeout(() => {
+        const resetFlippedCards = [...flippedCards];
+        resetFlippedCards[firstIndex] = false;
+        resetFlippedCards[secondIndex] = false;
+        setFlippedCards(resetFlippedCards);
         setFlippedIndices([]);
+        switchPlayer();
+      }, 500);
+    } else {
+      setMatchedCards((prev) => [...prev, shuffledCards[firstIndex]]);
+      if (playerNumber === 1) {
+        setPlayer1Score((prev) => prev + 10);
+      } else {
+        setPlayer2Score((prev) => prev + 10);
       }
+      setNumPairsLeft((prev) => prev - 1);
+      setFlippedIndices([]);
     }
-  }, [flippedIndices, flippedCards, shuffledCards, currentPlayer, playerNumber, numPairsLeft, switchPlayer]);
-
+  }
+}, [flippedIndices, flippedCards, shuffledCards, currentPlayer, playerNumber, numPairsLeft, switchPlayer]);
   useEffect(() => {
     if (numPairsLeft === 0) {
       let winnerName: string;
@@ -192,11 +205,44 @@ const GameBoard: React.FC = () => {
         >
           Rules
         </Button>
+        <Button
+  onClick={() => {
+    if (lastFlippedIndex !== null && flippedCards[lastFlippedIndex]) {
+      const newFlippedCards = [...flippedCards];
+      newFlippedCards[lastFlippedIndex] = false;
+      setFlippedCards(newFlippedCards);
+      setFlippedIndices([]);
+      setLastFlippedIndex(null);
+    }
+  }}
+  variant="contained"
+  color="secondary"
+>
+  Undo Flip
+</Button>                     
         </Box>
       <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, padding: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <PlayerCard name={player1} score={player1Score} isActive={currentPlayer === player1} />
           <PlayerCard name={player2} score={player2Score} isActive={currentPlayer === player2} />
+          <Box
+  sx={{
+    padding: 2,
+    border: '1px solid #ccc',
+    borderRadius: 2,
+    backgroundColor: '#fff',
+    boxShadow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 1,
+    width: '170px'
+  }}
+>
+  <div><strong>Current Turn:</strong> {currentPlayer}</div>
+  <div><strong>Moves:</strong> {moveCount}</div>
+  <div><strong>Matches Found:</strong> {(shuffledCards.length / 2) - numPairsLeft}</div>
+  <div><strong>Pairs Remaining:</strong> {numPairsLeft}</div>
+</Box>
         </Box>
 
         <Box

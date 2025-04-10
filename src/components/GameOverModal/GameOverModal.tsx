@@ -12,7 +12,11 @@ const GameOverModal: React.FC<GameOverModalProps> = ({ open, winner, onPlayAgain
   return (
     <Dialog
       open={open}
-      onClose={onNewPlayers}
+      onClose={(event, reason) => {
+        if (reason !== 'backdropClick') {
+          onNewPlayers();
+        }
+      }}
       PaperProps={{
         sx: {
           boxShadow: 6,  // Strong shadow for emphasis
