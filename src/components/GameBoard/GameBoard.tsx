@@ -178,6 +178,7 @@ useEffect(() => {
     setFlippedIndices([]);
     setPlayer1Score(0);
     setPlayer2Score(0);
+    setMoveCount(0);
     setNumPairsLeft(shuffled.length / 2);
     setCurrentPlayer(player1);
     setGameOver(false);
