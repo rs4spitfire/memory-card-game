@@ -173,7 +173,7 @@ useEffect(() => {
   };
 
   const navigateToHome = () => {
-    navigate('/updated');
+    navigate('/');
   };
 
   const getCardSize = () => {

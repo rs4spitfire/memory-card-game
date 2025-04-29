@@ -1,83 +1,96 @@
-// src/components/RulesModal.tsx
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  Typography,
+  Divider,
+  Box
+} from '@mui/material';
 
 interface RulesModalProps {
   open: boolean;
   onClose: () => void;
 }
 
+const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>
+    {children}
+  </Typography>
+);
+
 const RulesModal: React.FC<RulesModalProps> = ({ open, onClose }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Game Rules</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 'bold' }}>Memory Game Rules</DialogTitle>
       <DialogContent>
-        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Objective:</Typography>
+        <SectionTitle>🎯 Objective</SectionTitle>
         <Typography paragraph>
-          The goal of the game is to find and match pairs of identical cards. The player who matches the most pairs wins the game.
-        </Typography>
-        
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>Setup:</Typography>
-        <Typography paragraph>
-          <strong>Deck of Cards:</strong> A set of cards is used, with each card having a matching pair (e.g., two cards with the same image, number, or word).
-        </Typography>
-        <Typography paragraph>
-          <strong>Shuffling:</strong> The cards are shuffled and placed face down in a grid pattern (usually 4x4, 5x5, etc., depending on the difficulty level and number of players).
-        </Typography>
-        <Typography paragraph>
-          <strong>Turn Order:</strong> The game is typically played with two players, but more can be involved. Players take turns flipping over two cards at a time.
+          Match all the pairs of identical cards. The player with the most matches at the end wins!
         </Typography>
 
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>Game Play:</Typography>
+        <Divider sx={{ my: 1 }} />
+
+        <SectionTitle>🧩 Setup</SectionTitle>
+        <Typography paragraph><strong>Cards:</strong> A shuffled deck with matching pairs is laid out face down in a grid.</Typography>
+        <Typography paragraph><strong>Players:</strong> 2 or more players take turns flipping over cards.</Typography>
+
+        <Divider sx={{ my: 1 }} />
+
+        <SectionTitle>🎮 How to Play</SectionTitle>
+        <Typography paragraph>On each turn, a player flips two cards:</Typography>
+        <ul>
+          <li>If the cards match, the player keeps the pair and takes another turn.</li>
+          <li>If they don’t match, the cards are flipped back, and the next player takes their turn.</li>
+        </ul>
+
+        <Divider sx={{ my: 1 }} />
+
+        <SectionTitle>🧠 Memory</SectionTitle>
         <Typography paragraph>
-          <strong>Player's Turn:</strong> On their turn, the player flips over two cards. They can flip any two cards on the grid, revealing their images.
-        </Typography>
-        <Typography paragraph>
-          If the two cards match (i.e., they have the same image, number, etc.), the player keeps the matched pair and gets another turn.
-        </Typography>
-        <Typography paragraph>
-          If the two cards do not match, they are flipped back over face down, and the player's turn ends.
+          Pay close attention to card positions. Remembering previous flips will help you find matches and win!
         </Typography>
 
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>Memory:</Typography>
+        <Divider sx={{ my: 1 }} />
+
+        <SectionTitle>🏆 Winning</SectionTitle>
         <Typography paragraph>
-          Players should try to remember the positions of the cards they've seen, especially the ones they haven't yet matched. This will help them make matches on future turns.
+          The game ends when all pairs are matched. The player with the most matched pairs wins.
         </Typography>
 
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>Winning:</Typography>
-        <Typography paragraph>
-          The game continues until all pairs are matched. The player who has collected the most pairs at the end of the game is the winner.
-        </Typography>
+        <Divider sx={{ my: 1 }} />
 
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>Variations:</Typography>
-        <Typography paragraph>
-          <strong>Difficulty Levels:</strong> You can adjust the difficulty by increasing the number of cards and pairs, making it harder to remember card locations.
-        </Typography>
-        <Typography paragraph>
-          <strong>Single Player:</strong> The game can also be played solo, where the player tries to match all pairs in the shortest amount of time.
-        </Typography>
-        <Typography paragraph>
-          <strong>Time Challenge:</strong> You could add a time limit for each turn to make it more challenging.
-        </Typography>
+        <SectionTitle>⚙️ Variations</SectionTitle>
+        <ul>
+          <li><strong>Difficulty:</strong> Change the number of cards or grid size.</li>
+          <li><strong>Solo Mode:</strong> Try to match all pairs in the fewest moves.</li>
+          <li><strong>Time Challenge:</strong> Add a timer per turn for extra tension.</li>
+        </ul>
 
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>Strategy Tips:</Typography>
-        <Typography paragraph>
-          <strong>Remember Card Locations:</strong> A key part of the game is memorizing the locations of cards as you flip them.
-        </Typography>
-        <Typography paragraph>
-          <strong>Think Ahead:</strong> Try to remember pairs your opponent flips over to use that information to your advantage.
-        </Typography>
-        <Typography paragraph>
-          <strong>Stay Focused:</strong> The game is all about memory, so stay focused and pay attention to card locations.
-        </Typography>
+        <Divider sx={{ my: 1 }} />
 
-        <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>Enjoy the game!</Typography>
-        <Typography paragraph>
-          It's a great game for improving memory and concentration, and it's fun for all ages!
-        </Typography>
+        <SectionTitle>🧠 Strategy Tips</SectionTitle>
+        <ul>
+          <li>Remember what your opponent flips!</li>
+          <li>Pay attention to positions.</li>
+          <li>Take your time and stay sharp.</li>
+        </ul>
+
+        <Divider sx={{ my: 1 }} />
+
+        <Box mt={3}>
+          <Typography align="center" fontStyle="italic">
+            Have fun and sharpen your memory while playing!
+          </Typography>
+        </Box>
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose} color="primary">Close</Button>
+        <Button onClick={onClose} variant="contained" color="primary">
+          Got It!
+        </Button>
       </DialogActions>
     </Dialog>
   );

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import Header from './Header';
 import { useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -9,9 +8,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-
-  // Apply background only if route includes '/game'
-  const isUpdatedGameRoute = location.pathname.includes('/updated/game');
+  const isGameRoute = location.pathname.includes('/game');
 
   return (
     <Box
@@ -19,13 +16,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
-        background: isUpdatedGameRoute
-          ? 'radial-gradient(circle at top left, rgba(128, 0, 128, 0.5) 20%, rgba(211, 211, 211, 0.7) 60%, rgba(169, 169, 169, 0.9) 90%)'
-          : 'none', // No background for other routes
+        background: isGameRoute ? '#b2ebf2' : 'none', // Slightly darker light blue
       }}
     >
-      <Header />
-
       <Box
         component="main"
         sx={{

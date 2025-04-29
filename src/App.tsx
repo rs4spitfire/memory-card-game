@@ -12,13 +12,13 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         {/* Home route with default Layout */}
-        <Route path="/" element={<Layout><Home /></Layout>} />
+        <Route path="/updated" element={<Layout><Home /></Layout>} />
 
         {/* Game route with GameBoardLayout */}
-        <Route path="/game" element={<Layout><GameBoard /></Layout>} />
+        <Route path="/updated/game" element={<Layout><GameBoard /></Layout>} />
 
-        <Route path="/updated" element={<UpdatedLayout><UpdatedHome /></UpdatedLayout>} />
-        <Route path="/updated/game" element={<UpdatedLayout><UpdatedGameBoard /></UpdatedLayout>} />
+        <Route path="/" element={<UpdatedLayout><UpdatedHome /></UpdatedLayout>} />
+        <Route path="/game" element={<UpdatedLayout><UpdatedGameBoard /></UpdatedLayout>} />
       </Routes>
     </Router>
   );

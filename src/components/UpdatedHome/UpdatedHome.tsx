@@ -28,7 +28,7 @@ const UpdatedHome: React.FC = () => {
 
   const handlePlay = () => {
     if (player1.trim() && player2.trim()) {
-      navigate('/updated/game', { state: { player1, player2, difficulty } });
+      navigate('/game', { state: { player1, player2, difficulty } });
     } else {
       setError({
         player1: !player1.trim(),

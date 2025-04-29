@@ -35,7 +35,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ cardLabel, flipped, onFlip, car
         color: 'white',
         cursor: visible ? "pointer" : "default",
         backgroundColor: visible ? (flipped ? "white" : "blue") : "white",
-        transition: 'background-color 0.3s ease',
+        transition: 'transform 0.2s ease-in-out',
+        ...(flipped === false && {
+          '&:hover': {
+            transform: 'scale(1.05)',
+          }
+        })
       }}
       onClick={visible ? handleClick : undefined} // Use the delayed flip function
     >
