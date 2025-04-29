@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
 import MemoryCard from '../MemoryCard/MemoryCard';
 import GameOverModal from '../GameOverModal/GameOverModal';
 import ConfirmationModal from '../ConfirmationModal/ConfirmationModal';
 import ResetMessageModal from '../ResetMessageModal/ResetMessageModal';
 import RulesModal from '../RulesModal/RulesModal';
-import PlayerCard from '../PlayerCard/PlayerCard';
+//import PlayerCard from '../PlayerCard/PlayerCard';
 import Header from '../Layout/Header';
 
 const GameBoard: React.FC = () => {
@@ -98,14 +98,8 @@ const GameBoard: React.FC = () => {
     }, 1000);
   };
 
-  const toTitleCase = (str: string) => {
-    return str
-      .split(' ') // Split the string into words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter of each word
-      .join(' '); // Join the words back together
-  };
 
-  const handleUndoFlip = ()=>{  {
+  const handleUndoFlip = ()=>{  
     if (lastFlippedIndex !== null && flippedCards[lastFlippedIndex]) {
       const newFlippedCards = [...flippedCards];
       newFlippedCards[lastFlippedIndex] = false;
@@ -113,7 +107,7 @@ const GameBoard: React.FC = () => {
       setFlippedIndices([]);
       setLastFlippedIndex(null);
     }
-  }}
+  }
 
   const switchPlayer = useCallback(() => {
     setCurrentPlayer((prevPlayer) => (prevPlayer === player1 ? player2 : player1));
